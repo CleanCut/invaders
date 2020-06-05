@@ -1,0 +1,18 @@
+[package]
+name = "invaders"
+version = "0.1.0"
+authors = ["Nathan Stocks <nathan@agileperception.com>"]
+edition = "2018"
+description = "Open source terminal arcade game with audio - based off of the classic 'Space Invaders'"
+homepage = "https://github.com/CleanCut/invaders"
+repository = "https://github.com/CleanCut/invaders"
+readme = "README.md"
+keywords = ["terminal", "game", "audio", "rusty"]
+categories = ["games", "command-line-utilities"]
+license = "MIT OR Apache-2.0"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+crossterm = "0.17.5"
+rusty_audio = "1.1.4"
+rusty_time = "0.11.0"
