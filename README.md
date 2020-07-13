@@ -6,7 +6,7 @@ This game was initially developed for a presentation at [OSCON Open Source Softw
 
 Since the original presentations, folks continue to tinker and improve the game. Feel free to fork this repository, make a change, and submit a pull request if you have a good idea!
 
-### Audio Dependencies on Linux
+### Dependencies on Linux
 
 Audio should work out-of-the-box on macOS, Windows, and iOS.  For Linux, the
 downstream package for actually _playing_ sound ([CPAL]) requires
