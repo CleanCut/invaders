@@ -11,6 +11,7 @@ pub struct Invader {
 
 pub struct Invaders {
     pub army: Vec<Invader>,
+    pub total_count: usize,
     move_timer: Timer,
     direction: i32,
 }
@@ -31,8 +32,10 @@ impl Invaders {
                 }
             }
         }
+        let total_count = army.len();
         Self {
             army,
+            total_count,
             move_timer: Timer::from_millis(2000),
             direction: 1,
         }
