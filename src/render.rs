@@ -1,6 +1,6 @@
 use crate::frame::Frame;
 use crossterm::cursor::MoveTo;
-use crossterm::style::{Color, SetBackgroundColor};
+use crossterm::style::{Color, SetBackgroundColor, SetForegroundColor};
 use crossterm::terminal::{Clear, ClearType};
 use crossterm::QueueableCommand;
 use std::io::{Stdout, Write};
@@ -10,6 +10,7 @@ pub fn render(stdout: &mut Stdout, last_frame: &Frame, curr_frame: &Frame, force
         stdout.queue(SetBackgroundColor(Color::Blue)).unwrap();
         stdout.queue(Clear(ClearType::All)).unwrap();
         stdout.queue(SetBackgroundColor(Color::Black)).unwrap();
+        stdout.queue(SetForegroundColor(Color::White)).unwrap();
     }
     for (x, col) in curr_frame.iter().enumerate() {
         for (y, s) in col.iter().enumerate() {
