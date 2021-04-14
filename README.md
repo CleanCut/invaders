@@ -6,6 +6,13 @@ This game was initially developed for a presentation at [OSCON Open Source Softw
 
 Since the original presentations, folks continue to tinker and improve the game. Feel free to fork this repository, make a change, and submit a pull request if you have a good idea!
 
+### Sound Files
+
+If you want the sound files, but don't want to clone the repository, here are all the sounds in two different archive formats (the sound files are the same):
+
+- [sounds.zip](https://github.com/CleanCut/invaders/files/6312508/sounds.zip)
+- [sounds.tar.gz](https://github.com/CleanCut/invaders/files/6312511/sounds.tar.gz)
+
 ### Dependencies on Linux
 
 Audio should work out-of-the-box on macOS, Windows, and iOS.  For Linux, the
