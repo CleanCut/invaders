@@ -79,12 +79,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         // Updates
         player.update(delta);
-        score.update(&invaders);
+        // score.update(&invaders);
         if invaders.update(delta) {
             audio.play("move");
         }
         if player.detect_hits(&mut invaders) {
             audio.play("explode");
+            score.add_points(1);
         }
 
         // Draw & render
