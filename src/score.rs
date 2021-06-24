@@ -19,18 +19,10 @@ impl Drawable for Score {
         // format our score string
         let formated = format!("SCORE: {:0>4}", self.count);
 
-        // create a vector of chars to write each score char into
-        let mut chars = Vec::<char>::new();
-
-        // copy chars from formated string into the char vector
-        for c in formated.chars() {
-            chars.push(c);
-        }
-
         // iterate over all characters
-        for (i, c) in chars.iter().enumerate() {
+        for (i, c) in formated.chars().enumerate() {
             // put them in the first row
-            frame[i][0] = *c;
+            frame[i][0] = c;
         }
     }
 }
