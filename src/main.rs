@@ -79,7 +79,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         // Updates
         player.update(delta);
-        // score.update(&invaders);
         if invaders.update(delta) {
             audio.play("move");
         }
