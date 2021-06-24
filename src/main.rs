@@ -5,6 +5,7 @@ use crossterm::{event, terminal, ExecutableCommand};
 use invaders::frame::{new_frame, Drawable};
 use invaders::invaders::Invaders;
 use invaders::player::Player;
+use invaders::score::Score;
 use invaders::{frame, render};
 use rusty_audio::Audio;
 use std::error::Error;
@@ -48,6 +49,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut player = Player::new();
     let mut instant = Instant::now();
     let mut invaders = Invaders::new();
+    let mut score = Score::new();
+
     'gameloop: loop {
         // Per-frame init
         let delta = instant.elapsed();
@@ -79,12 +82,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         if invaders.update(delta) {
             audio.play("move");
         }
-        if player.detect_hits(&mut invaders) {
+        let hits: u16 = player.detect_hits(&mut invaders);
+        if hits > 0 {
             audio.play("explode");
+            score.add_points(hits);
         }
 
         // Draw & render
-        let drawables: Vec<&dyn Drawable> = vec![&player, &invaders];
+        let drawables: Vec<&dyn Drawable> = vec![&player, &invaders, &score];
         for drawable in drawables {
             drawable.draw(&mut curr_frame);
         }
