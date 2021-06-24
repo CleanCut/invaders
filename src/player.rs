@@ -42,12 +42,13 @@ impl Player {
         }
         self.shots.retain(|shot| !shot.dead());
     }
-    pub fn detect_hits(&mut self, invaders: &mut Invaders) -> bool {
-        let mut hit_something = false;
+    pub fn detect_hits(&mut self, invaders: &mut Invaders) -> u16 {
+        let mut hit_something = 0u16;
         for shot in self.shots.iter_mut() {
             if !shot.exploding {
-                if invaders.kill_invader_at(shot.x, shot.y) {
-                    hit_something = true;
+                let hit_count = invaders.kill_invader_at(shot.x, shot.y);
+                if hit_count > 0 {
+                    hit_something += hit_count;
                     shot.explode();
                 }
             }
