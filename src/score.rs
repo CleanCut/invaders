@@ -17,7 +17,7 @@ impl Score {
 impl Drawable for Score {
     fn draw(&self, frame: &mut Frame) {
         // format our score string
-        let formated = format!("SCORE: {:0>4}", self.count);
+        let formatted = format!("SCORE: {:0>4}", self.count);
 
         // iterate over all characters
         for (i, c) in formated.chars().enumerate() {
