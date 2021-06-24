@@ -20,7 +20,7 @@ impl Drawable for Score {
         let formatted = format!("SCORE: {:0>4}", self.count);
 
         // iterate over all characters
-        for (i, c) in formated.chars().enumerate() {
+        for (i, c) in formatted.chars().enumerate() {
             // put them in the first row
             frame[i][0] = c;
         }
