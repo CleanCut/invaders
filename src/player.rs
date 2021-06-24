@@ -1,14 +1,13 @@
-use crate::Scenes;
 use crate::frame::{Drawable, Frame};
 use crate::invaders::Invaders;
 use crate::shot::Shot;
+use crate::Scenes;
 use crate::{NUM_COLS, NUM_ROWS};
-use std::time::Duration;
+use crossterm::event;
 use crossterm::event::{Event, KeyCode};
-use crossterm::{event};
-use std::error::Error;
 use rusty_audio::Audio;
-
+use std::error::Error;
+use std::time::Duration;
 
 pub struct Player {
     x: usize,
@@ -50,19 +49,20 @@ impl Player {
         }
         self.shots.retain(|shot| !shot.dead());
     }
-    pub fn detect_hits(&mut self, invaders: &mut Invaders) -> bool {
-        let mut hit_something = false;
+    pub fn detect_hits(&mut self, invaders: &mut Invaders) -> u16 {
+        let mut hit_something = 0u16;
         for shot in self.shots.iter_mut() {
             if !shot.exploding {
-                if invaders.kill_invader_at(shot.x, shot.y) {
-                    hit_something = true;
+                let hit_count = invaders.kill_invader_at(shot.x, shot.y);
+                if hit_count > 0 {
+                    hit_something += hit_count;
                     shot.explode();
                 }
             }
         }
         hit_something
     }
-    pub fn set_handlers(&mut self,  audio: &mut Audio) -> Result<(), Box<dyn Error>> {
+    pub fn set_handlers(&mut self, audio: &mut Audio) -> Result<(), Box<dyn Error>> {
         // Inputs
         while event::poll(Duration::default())? {
             if let Event::Key(key_event) = event::read()? {
@@ -88,7 +88,7 @@ impl Player {
 
 impl Drawable for Player {
     fn draw(&self, frame: &mut Frame) {
-        frame[self.x][self.y] = String::from("A");
+        frame[self.x][self.y] = 'A';
         for shot in self.shots.iter() {
             shot.draw(frame);
         }

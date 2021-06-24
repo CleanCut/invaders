@@ -1,9 +1,9 @@
-use crate::Scenes;
 use crate::frame::{Drawable, Frame};
+use crate::Scenes;
+use crossterm::event;
 use crossterm::event::{Event, KeyCode};
-use crossterm::{event};
 use std::error::Error;
-use std::time::{Duration};
+use std::time::Duration;
 
 pub struct Menu {
     options: Vec<String>,
@@ -22,7 +22,7 @@ impl Menu {
 
     pub fn reset_selected(&mut self) {
         self.selected = Scenes::Menu;
-    }   
+    }
 
     pub fn change_option(&mut self, upwards: bool) {
         if upwards && self.selection > 0 {
@@ -47,9 +47,7 @@ impl Menu {
                 match key_event.code {
                     KeyCode::Up => self.change_option(true),
                     KeyCode::Down => self.change_option(false),
-                    KeyCode::Char(' ') | KeyCode::Enter => {
-                        self.select_option()
-                    }
+                    KeyCode::Char(' ') | KeyCode::Enter => self.select_option(),
                     _ => {}
                 }
             }
@@ -61,10 +59,10 @@ impl Menu {
 // Reuse Frame grid to print the menu options
 impl Drawable for Menu {
     fn draw(&self, frame: &mut Frame) {
-        frame[0][self.selection] = String::from(">");
+        frame[0][self.selection] = '>';
         for (index, option) in self.options.iter().enumerate() {
             for i in 0..option.len() {
-                frame[i + 1][index] = self.options[index].chars().nth(i).unwrap().to_string();
+                frame[i + 1][index] = self.options[index].chars().nth(i).unwrap();
             }
         }
     }

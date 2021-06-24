@@ -1,11 +1,12 @@
 use crossterm::cursor::{Hide, Show};
 use crossterm::terminal::{EnterAlternateScreen, LeaveAlternateScreen};
 use crossterm::{terminal, ExecutableCommand};
-use invaders::Scenes;
 use invaders::frame::{new_frame, Drawable, Frame};
 use invaders::invaders::Invaders;
-use invaders::player::Player;
 use invaders::menu::Menu;
+use invaders::player::Player;
+use invaders::score::Score;
+use invaders::Scenes;
 use invaders::{frame, render};
 use rusty_audio::Audio;
 use std::error::Error;
@@ -52,6 +53,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut player = Player::new();
     let mut instant = Instant::now();
     let mut invaders = Invaders::new();
+    let mut score = Score::new();
     let mut menu = Menu::new();
     let mut scene = Scenes::Menu;
 
@@ -99,11 +101,13 @@ fn main() -> Result<(), Box<dyn Error>> {
             if invaders.update(delta) {
                 audio.play("move");
             }
-            if player.detect_hits(&mut invaders) {
+            let hits: u16 = player.detect_hits(&mut invaders);
+            if hits > 0 {
                 audio.play("explode");
+                score.add_points(hits);
             }
             // Draw & render
-            draw(vec![&player, &invaders], &mut curr_frame);
+            draw(vec![&player, &invaders, &score], &mut curr_frame);
         }
 
         let _ = render_tx.send(curr_frame);
