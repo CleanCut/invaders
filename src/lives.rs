@@ -20,7 +20,7 @@ impl Lives {
 impl Drawable for Lives {
     fn draw(&self, frame: &mut Frame) {
         // format our lives string
-        let formatted = format!("LIVES: {:0>4}", self.lives);
+        let formatted = format!("LIVES: {:0>2}", self.lives);
 
         // iterate over all characters
         for (i, c) in formatted.chars().enumerate() {
