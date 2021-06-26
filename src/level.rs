@@ -29,3 +29,31 @@ impl Drawable for Level {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Level;
+
+    #[test]
+    fn should_increment_level_and_return_false() {
+        // given
+        let mut level = Level::new();
+        // when
+        let actual = level.increment_level();
+        // then
+        assert_eq!(false, actual);
+        assert_eq!(2, level.level);
+    }
+
+    #[test]
+    fn should_increment_level_two_times_and_return_true() {
+        // given
+        let mut level = Level::new();
+        // when
+        level.increment_level();
+        let actual = level.increment_level();
+        // then
+        assert_eq!(true, actual);
+        assert_eq!(3, level.level);
+    }
+}
