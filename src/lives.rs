@@ -35,7 +35,7 @@ mod tests {
     use super::Lives;
 
     #[test]
-    fn should_loose_life_and_return_true() {
+    fn should_lose_life_and_return_true() {
         // given
         let mut level = Lives::new();
         // when
@@ -46,7 +46,7 @@ mod tests {
     }
 
     #[test]
-    fn should_loose_life_three_times_and_return_false() {
+    fn should_lose_life_three_times_and_return_false() {
         // given
         let mut level = Lives::new();
         // when
