@@ -29,3 +29,33 @@ impl Drawable for Lives {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Lives;
+
+    #[test]
+    fn should_lose_life_and_return_true() {
+        // given
+        let mut level = Lives::new();
+        // when
+        let actual = level.lose_life();
+        // then
+        assert_eq!(true, actual);
+        assert_eq!(2, level.lives);
+    }
+
+    #[test]
+    fn should_lose_life_three_times_and_return_false() {
+        // given
+        let mut level = Lives::new();
+        // when
+        level.lose_life();
+        level.lose_life();
+        let actual = level.lose_life();
+        // then
+        assert_eq!(false, actual);
+        assert_eq!(0, level.lives);
+    }
+}
+
