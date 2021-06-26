@@ -1,5 +1,6 @@
 use crate::frame::{Drawable, Frame};
 
+#[derive(Default)]
 pub struct Score {
     count: u16,
 }
