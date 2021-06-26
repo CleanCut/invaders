@@ -3,6 +3,7 @@ pub mod invaders;
 pub mod player;
 pub mod render;
 pub mod score;
+pub mod lives;
 pub mod shot;
 
 pub const NUM_ROWS: usize = 20;
