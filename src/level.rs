@@ -14,7 +14,7 @@ impl Level {
     pub fn increment_level(&mut self) -> bool {
         if self.level <= MAX_LEVEL {
             self.level += 1;
-        }   
+        }
         self.level == MAX_LEVEL
     }
 }

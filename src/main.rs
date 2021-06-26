@@ -4,9 +4,9 @@ use crossterm::terminal::{EnterAlternateScreen, LeaveAlternateScreen};
 use crossterm::{event, terminal, ExecutableCommand};
 use invaders::frame::{new_frame, Drawable};
 use invaders::invaders::Invaders;
+use invaders::level::Level;
 use invaders::player::Player;
 use invaders::score::Score;
-use invaders::level::Level;
 use invaders::{frame, render};
 use rusty_audio::Audio;
 use std::error::Error;
@@ -98,7 +98,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         if invaders.all_killed() {
             if level.increment_level() {
                 audio.play("win");
-                break 'gameloop;    
+                break 'gameloop;
             }
             invaders = Invaders::new();
         }
