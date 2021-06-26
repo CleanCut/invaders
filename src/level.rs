@@ -1,5 +1,7 @@
 use crate::frame::{Drawable, Frame};
 
+const MAX_LEVEL: u8 = 3;
+
 pub struct Level {
     level: u8,
 }
@@ -10,10 +12,10 @@ impl Level {
     }
 
     pub fn increment_level(&mut self) -> bool {
-        if self.level <= 3 {
+        if self.level <= MAX_LEVEL {
             self.level += 1;
         }   
-        self.level == 3
+        self.level == MAX_LEVEL
     }
 }
 
@@ -32,7 +34,7 @@ impl Drawable for Level {
 
 #[cfg(test)]
 mod tests {
-    use super::Level;
+    use super::*;
 
     #[test]
     fn should_increment_level_and_return_false() {
@@ -54,6 +56,6 @@ mod tests {
         let actual = level.increment_level();
         // then
         assert_eq!(true, actual);
-        assert_eq!(3, level.level);
+        assert_eq!(MAX_LEVEL, level.level);
     }
 }
