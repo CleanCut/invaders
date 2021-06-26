@@ -19,6 +19,12 @@ impl Level {
     }
 }
 
+impl Default for Level {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Drawable for Level {
     fn draw(&self, frame: &mut Frame) {
         // format our level string
