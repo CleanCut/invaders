@@ -4,6 +4,7 @@ use crossterm::terminal::{EnterAlternateScreen, LeaveAlternateScreen};
 use crossterm::{event, terminal, ExecutableCommand};
 use invaders::frame::{new_frame, Drawable};
 use invaders::invaders::Invaders;
+use invaders::level::Level;
 use invaders::player::Player;
 use invaders::score::Score;
 use invaders::{frame, render};
@@ -46,6 +47,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut instant = Instant::now();
     let mut invaders = Invaders::new();
     let mut score = Score::new();
+    let mut level = Level::new();
 
     'gameloop: loop {
         // Per-frame init
@@ -85,7 +87,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
 
         // Draw & render
-        let drawables: Vec<&dyn Drawable> = vec![&player, &invaders, &score];
+        let drawables: Vec<&dyn Drawable> = vec![&player, &invaders, &score, &level];
         for drawable in drawables {
             drawable.draw(&mut curr_frame);
         }
@@ -94,8 +96,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         // Win or lose?
         if invaders.all_killed() {
-            audio.play("win");
-            break 'gameloop;
+            if level.increment_level() {
+                audio.play("win");
+                break 'gameloop;
+            }
+            invaders = Invaders::new();
         }
         if invaders.reached_bottom() {
             audio.play("lose");
