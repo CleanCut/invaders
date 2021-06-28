@@ -1,19 +1,25 @@
-use crossterm::cursor::{Hide, Show};
-use crossterm::terminal::{EnterAlternateScreen, LeaveAlternateScreen};
-use crossterm::{terminal, ExecutableCommand};
-use invaders::frame::{new_frame, Drawable, Frame};
-use invaders::invaders::Invaders;
-use invaders::menu::Menu;
-use invaders::player::Player;
-use invaders::score::Score;
-use invaders::Scenes;
-use invaders::{frame, render};
+use crossterm::{
+    cursor::{Hide, Show},
+    event::{self, Event, KeyCode},
+    terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
+    ExecutableCommand,
+};
 use rusty_audio::Audio;
-use std::error::Error;
-use std::sync::mpsc;
-use std::sync::mpsc::Receiver;
-use std::time::{Duration, Instant};
-use std::{io, thread};
+use std::{
+    error::Error,
+    sync::mpsc::{self, Receiver},
+    time::{Duration, Instant},
+    {io, thread},
+};
+
+use invaders::{
+    frame::{self, new_frame, Drawable, Frame},
+    invaders::Invaders,
+    menu::Menu,
+    player::Player,
+    render,
+    score::Score,
+};
 
 fn render_screen(render_rx: Receiver<Frame>) {
     let mut last_frame = frame::new_frame();
@@ -29,10 +35,15 @@ fn render_screen(render_rx: Receiver<Frame>) {
     }
 }
 
+fn reset_game(in_menu: &mut bool, player: &mut Player, invaders: &mut Invaders) {
+    *in_menu = true;
+    *player = Player::new();
+    *invaders = Invaders::new();
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let mut audio = Audio::new();
-    let audios = ["explode", "lose", "move", "pew", "startup", "win"];
-    for item in audios.iter() {
+    for item in &["explode", "lose", "move", "pew", "startup", "win"] {
         audio.add(item, &format!("{}.wav", item));
     }
     audio.play("startup");
@@ -55,46 +66,54 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut invaders = Invaders::new();
     let mut score = Score::new();
     let mut menu = Menu::new();
-    let mut scene = Scenes::Menu;
+    let mut in_menu = true;
 
-    fn reset_game(scene: &mut Scenes, player: &mut Player, invaders: &mut Invaders) {
-        *scene = Scenes::Menu;
-        *player = Player::new();
-        *invaders = Invaders::new();
-    }
-
-    fn draw(drawables: Vec<&dyn Drawable>, frame: &mut Frame) {
-        for drawable in drawables {
-            drawable.draw(frame);
-        }
-    }
-
-    while scene != Scenes::End {
+    'gameloop: loop {
         // Per-frame init
         let delta = instant.elapsed();
         instant = Instant::now();
         let mut curr_frame = new_frame();
 
-        if scene == Scenes::Menu {
-            // How can I improve this? (used to avoid problems with references)
-            if menu.selected == Scenes::Game {
-                scene = Scenes::Game;
-                menu.reset_selected();
-            } else if menu.selected == Scenes::End {
-                scene = Scenes::End;
-                menu.reset_selected();
+        if in_menu {
+            // Input handlers for the menu
+            while event::poll(Duration::default())? {
+                if let Event::Key(key_event) = event::read()? {
+                    match key_event.code {
+                        KeyCode::Up => menu.change_option(true),
+                        KeyCode::Down => menu.change_option(false),
+                        KeyCode::Char(' ') | KeyCode::Enter => {
+                            if menu.selection == 0 {
+                                in_menu = false;
+                            } else {
+                                break 'gameloop;
+                            }
+                        }
+                        _ => {}
+                    }
+                }
             }
-            // Input
-            menu.set_handlers()?;
-            // Draw & render
-            draw(vec![&menu], &mut curr_frame);
-        } else if scene == Scenes::Game {
-            // How can I improve this? (used to avoid problems with references)
-            if player.scene == Scenes::Menu {
-                reset_game(&mut scene, &mut player, &mut invaders);
+            menu.draw(&mut curr_frame);
+        } else {
+            // Input handlers for the game
+            while event::poll(Duration::default())? {
+                if let Event::Key(key_event) = event::read()? {
+                    match key_event.code {
+                        KeyCode::Left => player.move_left(),
+                        KeyCode::Right => player.move_right(),
+                        KeyCode::Char(' ') | KeyCode::Enter => {
+                            if player.shoot() {
+                                audio.play("pew");
+                            }
+                        }
+                        KeyCode::Esc | KeyCode::Char('q') => {
+                            audio.play("lose");
+                            in_menu = true;
+                            reset_game(&mut in_menu, &mut player, &mut invaders);
+                        }
+                        _ => {}
+                    }
+                }
             }
-            // Input
-            player.set_handlers(&mut audio)?;
 
             // Updates
             player.update(delta);
@@ -107,22 +126,23 @@ fn main() -> Result<(), Box<dyn Error>> {
                 score.add_points(hits);
             }
             // Draw & render
-            draw(vec![&player, &invaders, &score], &mut curr_frame);
+            player.draw(&mut curr_frame);
+            invaders.draw(&mut curr_frame);
+            score.draw(&mut curr_frame);
         }
 
         let _ = render_tx.send(curr_frame);
         thread::sleep(Duration::from_millis(1));
 
         // Final checks if we are in game
-        if scene == Scenes::Game {
+        if !in_menu {
             // Win or lose?
             if invaders.all_killed() {
                 audio.play("win");
-                reset_game(&mut scene, &mut player, &mut invaders);
-            }
-            if invaders.reached_bottom() {
+                reset_game(&mut in_menu, &mut player, &mut invaders);
+            } else if invaders.reached_bottom() {
                 audio.play("lose");
-                reset_game(&mut scene, &mut player, &mut invaders);
+                reset_game(&mut in_menu, &mut player, &mut invaders);
             }
         }
     }

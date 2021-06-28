@@ -1,8 +1,7 @@
 use crate::frame::{Drawable, Frame};
 use crate::{NUM_COLS, NUM_ROWS};
 use rusty_time::timer::Timer;
-use std::cmp::max;
-use std::time::Duration;
+use std::{cmp::max, time::Duration};
 
 pub struct Invader {
     pub x: usize,
