@@ -93,57 +93,57 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
             }
             menu.draw(&mut curr_frame);
-        } else {
-            // Input handlers for the game
-            while event::poll(Duration::default())? {
-                if let Event::Key(key_event) = event::read()? {
-                    match key_event.code {
-                        KeyCode::Left => player.move_left(),
-                        KeyCode::Right => player.move_right(),
-                        KeyCode::Char(' ') | KeyCode::Enter => {
-                            if player.shoot() {
-                                audio.play("pew");
-                            }
+            
+            let _ = render_tx.send(curr_frame);
+            thread::sleep(Duration::from_millis(1));
+            continue;
+        }
+
+        // Input handlers for the game
+        while event::poll(Duration::default())? {
+            if let Event::Key(key_event) = event::read()? {
+                match key_event.code {
+                    KeyCode::Left => player.move_left(),
+                    KeyCode::Right => player.move_right(),
+                    KeyCode::Char(' ') | KeyCode::Enter => {
+                        if player.shoot() {
+                            audio.play("pew");
                         }
-                        KeyCode::Esc | KeyCode::Char('q') => {
-                            audio.play("lose");
-                            in_menu = true;
-                            reset_game(&mut in_menu, &mut player, &mut invaders);
-                        }
-                        _ => {}
                     }
+                    KeyCode::Esc | KeyCode::Char('q') => {
+                        audio.play("lose");
+                        reset_game(&mut in_menu, &mut player, &mut invaders);
+                    }
+                    _ => {}
                 }
             }
-
-            // Updates
-            player.update(delta);
-            if invaders.update(delta) {
-                audio.play("move");
-            }
-            let hits: u16 = player.detect_hits(&mut invaders);
-            if hits > 0 {
-                audio.play("explode");
-                score.add_points(hits);
-            }
-            // Draw & render
-            player.draw(&mut curr_frame);
-            invaders.draw(&mut curr_frame);
-            score.draw(&mut curr_frame);
         }
+
+        // Updates
+        player.update(delta);
+        if invaders.update(delta) {
+            audio.play("move");
+        }
+        let hits: u16 = player.detect_hits(&mut invaders);
+        if hits > 0 {
+            audio.play("explode");
+            score.add_points(hits);
+        }
+        // Draw & render
+        player.draw(&mut curr_frame);
+        invaders.draw(&mut curr_frame);
+        score.draw(&mut curr_frame);
 
         let _ = render_tx.send(curr_frame);
         thread::sleep(Duration::from_millis(1));
 
-        // Final checks if we are in game
-        if !in_menu {
-            // Win or lose?
-            if invaders.all_killed() {
-                audio.play("win");
-                reset_game(&mut in_menu, &mut player, &mut invaders);
-            } else if invaders.reached_bottom() {
-                audio.play("lose");
-                reset_game(&mut in_menu, &mut player, &mut invaders);
-            }
+        // Win or lose?
+        if invaders.all_killed() {
+            audio.play("win");
+            reset_game(&mut in_menu, &mut player, &mut invaders);
+        } else if invaders.reached_bottom() {
+            audio.play("lose");
+            reset_game(&mut in_menu, &mut player, &mut invaders);
         }
     }
 
