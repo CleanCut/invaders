@@ -15,6 +15,7 @@ use std::{
 use invaders::{
     frame::{self, new_frame, Drawable, Frame},
     invaders::Invaders,
+    level::Level,
     menu::Menu,
     player::Player,
     render,
@@ -25,11 +26,7 @@ fn render_screen(render_rx: Receiver<Frame>) {
     let mut last_frame = frame::new_frame();
     let mut stdout = io::stdout();
     render::render(&mut stdout, &last_frame, &last_frame, true);
-    loop {
-        let curr_frame = match render_rx.recv() {
-            Ok(x) => x,
-            Err(_) => break,
-        };
+    while let Ok(curr_frame) = render_rx.recv() {
         render::render(&mut stdout, &last_frame, &curr_frame, false);
         last_frame = curr_frame;
     }
@@ -67,6 +64,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut score = Score::new();
     let mut menu = Menu::new();
     let mut in_menu = true;
+    let mut level = Level::new();
 
     'gameloop: loop {
         // Per-frame init
@@ -130,17 +128,21 @@ fn main() -> Result<(), Box<dyn Error>> {
             score.add_points(hits);
         }
         // Draw & render
-        player.draw(&mut curr_frame);
-        invaders.draw(&mut curr_frame);
-        score.draw(&mut curr_frame);
 
+        let drawables: Vec<&dyn Drawable> = vec![&player, &invaders, &score, &level];
+        for drawable in drawables {
+            drawable.draw(&mut curr_frame);
+        }
         let _ = render_tx.send(curr_frame);
         thread::sleep(Duration::from_millis(1));
 
         // Win or lose?
         if invaders.all_killed() {
-            audio.play("win");
-            reset_game(&mut in_menu, &mut player, &mut invaders);
+            if level.increment_level() {
+                audio.play("win");
+                break 'gameloop;
+            }
+            invaders = Invaders::new();
         } else if invaders.reached_bottom() {
             audio.play("lose");
             reset_game(&mut in_menu, &mut player, &mut invaders);

@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+env:
+  RUSTFLAGS: "-C debuginfo=0 -D warnings"
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.toolchain == 'nightly' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        toolchain: [stable, beta, nightly]
+        include:
+          - os: macos-latest
+            MACOS: true
+          - os: windows-latest
+          - os: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Linux deps alsa and udev
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
+        if: runner.os == 'linux'
+
+      - name: install ${{ matrix.toolchain }} toolchain
+        id: install_toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          profile: minimal
+          # Don't use a 'components:' entry--we don't need them with beta/nightly, plus nightly often doesn't have them
+          override: true
+
+      - name: rustfmt & clippy
+        run: |
+          rustup component add clippy rustfmt
+          cargo clippy --workspace
+          cargo fmt --all -- --check
+        if: matrix.toolchain == 'stable' && matrix.os == 'ubuntu-latest'
+
+      - run: cargo test --workspace --all-targets --all-features
+        env:
+          MACOS: ${{ matrix.MACOS }} # Used by some tests
