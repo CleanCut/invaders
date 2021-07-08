@@ -22,6 +22,12 @@ impl Menu {
     }
 }
 
+impl Default for Menu {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 // Reuse Frame grid to print the menu options
 impl Drawable for Menu {
     fn draw(&self, frame: &mut Frame) {
