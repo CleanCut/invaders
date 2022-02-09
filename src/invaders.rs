@@ -5,7 +5,7 @@ use crate::{
 use rusty_time::timer::Timer;
 use std::{cmp::max, time::Duration};
 
-pub struct Invader {
+struct Invader {
     pub x: usize,
     pub y: usize,
     points: u16,
@@ -14,7 +14,7 @@ pub struct Invader {
 }
 
 pub struct Invaders {
-    pub army: Vec<Invader>,
+    army: Vec<Invader>,
     pub total_count: usize,
     move_timer: Timer,
     direction: i32,

@@ -9,8 +9,8 @@ use std::{
 
 use invaders::{
     constants::{
-        SOUND_EXPLOSION, SOUND_FILE_NAMES, SOUND_LOSE, SOUND_MOVE, SOUND_SHOT, SOUND_STARTUP,
-        SOUND_WIN, KEYBOARD_POLLING_TIMEOUT_MS, RENDER_INTERVAL_MS,
+        KEYBOARD_POLLING_TIMEOUT_MS, RENDER_INTERVAL_MS, SOUND_EXPLOSION, SOUND_FILE_NAMES,
+        SOUND_LOSE, SOUND_MOVE, SOUND_SHOT, SOUND_STARTUP, SOUND_WIN,
     },
     frame::{self, new_frame, Drawable, Frame},
     invaders::Invaders,
@@ -46,7 +46,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     audio.play(SOUND_STARTUP);
 
     // Terminal
-    let _terminal = Terminal::start();
+    let _terminal = Terminal::start()?;
 
     // Render loop in a separate thread
     let (render_tx, render_rx) = mpsc::channel();
@@ -55,7 +55,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     });
 
     // Game loop
-    let mut player = Player::new();
+    let mut player: Player = Default::default();
     let mut instant = Instant::now();
     let mut invaders = Invaders::new();
     let mut score = Score::new();
