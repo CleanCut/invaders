@@ -35,9 +35,11 @@ pub const INVADER_FACES: [[char; 2]; INVADERS_ROW_COUNT] =
     [['x', '+'], [')', '('], ['O', '0'], ['_', '-']];
 
 // Timings
+pub const KEYBOARD_POLLING_TIMEOUT_MS: u64 = 2;
+pub const RENDER_INTERVAL_MS: u64 = 5;
 pub const INVADERS_INITAL_MOVE_INTERVAL_MS: u64 = 2_000;
 pub const INVADERS_MOVE_INTERVAL_DECREMENT_MS: u64 = 250;
 pub const INVADERS_MOVE_INTERVAL_MINIMAL_MS: u64 = 250;
-pub const SHOT_MOVE_INTERVAL_MS: u64 = 47;
-pub const SHOT_EXPLOSION_DURATION_MS: u64 = 541;
+pub const SHOT_MOVE_INTERVAL_MS: u64 = 45;
+pub const SHOT_EXPLOSION_DURATION_MS: u64 = 260;
     

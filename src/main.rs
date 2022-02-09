@@ -10,7 +10,7 @@ use std::{
 use invaders::{
     constants::{
         SOUND_EXPLOSION, SOUND_FILE_NAMES, SOUND_LOSE, SOUND_MOVE, SOUND_SHOT, SOUND_STARTUP,
-        SOUND_WIN,
+        SOUND_WIN, KEYBOARD_POLLING_TIMEOUT_MS, RENDER_INTERVAL_MS,
     },
     frame::{self, new_frame, Drawable, Frame},
     invaders::Invaders,
@@ -71,7 +71,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         if in_menu {
             // Input handlers for the menu
-            while event::poll(Duration::default())? {
+            while event::poll(Duration::from_millis(KEYBOARD_POLLING_TIMEOUT_MS))? {
                 if let Event::Key(key_event) = event::read()? {
                     match key_event.code {
                         KeyCode::Up => menu.change_option(true),
@@ -90,12 +90,12 @@ fn main() -> Result<(), Box<dyn Error>> {
             menu.draw(&mut curr_frame);
 
             let _ = render_tx.send(curr_frame);
-            thread::sleep(Duration::from_millis(1));
+            thread::sleep(Duration::from_millis(RENDER_INTERVAL_MS));
             continue;
         }
 
         // Input handlers for the game
-        while event::poll(Duration::default())? {
+        while event::poll(Duration::from_millis(KEYBOARD_POLLING_TIMEOUT_MS))? {
             if let Event::Key(key_event) = event::read()? {
                 match key_event.code {
                     KeyCode::Left => player.move_left(),
@@ -131,7 +131,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             drawable.draw(&mut curr_frame);
         }
         let _ = render_tx.send(curr_frame);
-        thread::sleep(Duration::from_millis(1));
+        thread::sleep(Duration::from_millis(RENDER_INTERVAL_MS));
 
         // Win or lose?
         if invaders.all_killed() {
