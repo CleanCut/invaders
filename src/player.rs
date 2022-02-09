@@ -1,8 +1,8 @@
 use crate::{
+    constants::{NUM_COLS, NUM_ROWS, PLAYER_MAX_SIMULTANEOUS_SHOTS},
     frame::{Drawable, Frame},
     invaders::Invaders,
     shot::Shot,
-    {NUM_COLS, NUM_ROWS},
 };
 use std::time::Duration;
 
@@ -31,7 +31,7 @@ impl Player {
         }
     }
     pub fn shoot(&mut self) -> bool {
-        if self.shots.len() < 2 {
+        if self.shots.len() < PLAYER_MAX_SIMULTANEOUS_SHOTS {
             self.shots.push(Shot::new(self.x, self.y - 1));
             true
         } else {

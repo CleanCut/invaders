@@ -1,9 +1,4 @@
-use crossterm::{
-    cursor::{Hide, Show},
-    event::{self, Event, KeyCode},
-    terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
-    ExecutableCommand,
-};
+use crossterm::event::{self, Event, KeyCode};
 use rusty_audio::Audio;
 use std::{
     error::Error,
@@ -13,6 +8,10 @@ use std::{
 };
 
 use invaders::{
+    constants::{
+        SOUND_EXPLOSION, SOUND_FILE_NAMES, SOUND_LOSE, SOUND_MOVE, SOUND_SHOT, SOUND_STARTUP,
+        SOUND_WIN,
+    },
     frame::{self, new_frame, Drawable, Frame},
     invaders::Invaders,
     level::Level,
@@ -20,6 +19,7 @@ use invaders::{
     player::Player,
     render,
     score::Score,
+    terminal::Terminal,
 };
 
 fn render_screen(render_rx: Receiver<Frame>) {
@@ -40,16 +40,13 @@ fn reset_game(in_menu: &mut bool, player: &mut Player, invaders: &mut Invaders) 
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut audio = Audio::new();
-    for item in &["explode", "lose", "move", "pew", "startup", "win"] {
+    for item in &SOUND_FILE_NAMES {
         audio.add(item, &format!("{}.wav", item));
     }
-    audio.play("startup");
+    audio.play(SOUND_STARTUP);
 
     // Terminal
-    let mut stdout = io::stdout();
-    terminal::enable_raw_mode()?;
-    stdout.execute(EnterAlternateScreen)?;
-    stdout.execute(Hide)?;
+    let _terminal = Terminal::start();
 
     // Render loop in a separate thread
     let (render_tx, render_rx) = mpsc::channel();
@@ -91,7 +88,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
             }
             menu.draw(&mut curr_frame);
-            
+
             let _ = render_tx.send(curr_frame);
             thread::sleep(Duration::from_millis(1));
             continue;
@@ -105,11 +102,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                     KeyCode::Right => player.move_right(),
                     KeyCode::Char(' ') | KeyCode::Enter => {
                         if player.shoot() {
-                            audio.play("pew");
+                            audio.play(SOUND_SHOT);
                         }
                     }
                     KeyCode::Esc | KeyCode::Char('q') => {
-                        audio.play("lose");
+                        audio.play(SOUND_LOSE);
                         reset_game(&mut in_menu, &mut player, &mut invaders);
                     }
                     _ => {}
@@ -120,11 +117,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         // Updates
         player.update(delta);
         if invaders.update(delta) {
-            audio.play("move");
+            audio.play(SOUND_MOVE);
         }
         let hits: u16 = player.detect_hits(&mut invaders);
         if hits > 0 {
-            audio.play("explode");
+            audio.play(SOUND_EXPLOSION);
             score.add_points(hits);
         }
         // Draw & render
@@ -139,12 +136,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         // Win or lose?
         if invaders.all_killed() {
             if level.increment_level() {
-                audio.play("win");
+                audio.play(SOUND_WIN);
                 break 'gameloop;
             }
             invaders = Invaders::new();
         } else if invaders.reached_bottom() {
-            audio.play("lose");
+            audio.play(SOUND_LOSE);
             reset_game(&mut in_menu, &mut player, &mut invaders);
         }
     }
@@ -153,8 +150,5 @@ fn main() -> Result<(), Box<dyn Error>> {
     drop(render_tx);
     render_handle.join().unwrap();
     audio.wait();
-    stdout.execute(Show)?;
-    stdout.execute(LeaveAlternateScreen)?;
-    terminal::disable_raw_mode()?;
     Ok(())
 }

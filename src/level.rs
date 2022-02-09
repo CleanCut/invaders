@@ -1,6 +1,4 @@
-use crate::frame::{Drawable, Frame};
-
-const MAX_LEVEL: u8 = 3;
+use crate::{constants::MAX_LEVEL, frame::{Drawable, Frame}};
 
 pub struct Level {
     level: u8,

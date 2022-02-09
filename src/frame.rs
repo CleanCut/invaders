@@ -1,4 +1,4 @@
-use crate::{NUM_COLS, NUM_ROWS};
+use crate::constants::{NUM_COLS, NUM_ROWS};
 
 pub type Frame = [[char; NUM_ROWS]; NUM_COLS];
 
