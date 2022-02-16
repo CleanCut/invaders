@@ -9,8 +9,8 @@ pub struct Invader {
     pub x: usize,
     pub y: usize,
     points: u16,
-    face1: &'static char,
-    face2: &'static char,
+    face1: char,
+    face2: char,
 }
 
 pub struct Invaders {
