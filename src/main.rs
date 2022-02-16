@@ -9,8 +9,8 @@ use std::{
 
 use invaders::{
     constants::{
-        KEYBOARD_POLLING_TIMEOUT_MS, RENDER_INTERVAL_MS, SOUND_EXPLOSION, SOUND_FILE_NAMES,
-        SOUND_LOSE, SOUND_MOVE, SOUND_SHOT, SOUND_STARTUP, SOUND_WIN,
+        RENDER_INTERVAL_MS, SOUND_EXPLOSION, SOUND_FILE_NAMES, SOUND_LOSE, SOUND_MOVE, SOUND_SHOT,
+        SOUND_STARTUP, SOUND_WIN,
     },
     frame::{self, new_frame, Drawable, Frame},
     invaders::Invaders,

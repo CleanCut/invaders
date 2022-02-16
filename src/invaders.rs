@@ -29,7 +29,6 @@ impl Invaders {
         {
             // unwrap is safe as the INVADER_FACES is guarded by INVADERS_ROW_COUNT
             for x in (INVADERS_FIRST_COL..INVADERS_LAST_COL).step_by(INVADERS_COL_INTERVAL) {
-                let [face1, face2] = faces;
                 army.push(Invader {
                     x,
                     y,
