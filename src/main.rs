@@ -8,10 +8,7 @@ use std::{
 };
 
 use invaders::{
-    constants::{
-        RENDER_INTERVAL_MS, SOUND_EXPLOSION, SOUND_FILE_NAMES, SOUND_LOSE, SOUND_MOVE, SOUND_SHOT,
-        SOUND_STARTUP, SOUND_WIN,
-    },
+    constants::RENDER_INTERVAL_MS,
     frame::{self, new_frame, Drawable, Frame},
     invaders::Invaders,
     level::Level,
@@ -40,10 +37,10 @@ fn reset_game(in_menu: &mut bool, player: &mut Player, invaders: &mut Invaders) 
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut audio = Audio::new();
-    for item in &SOUND_FILE_NAMES {
+    for item in &["explode", "lose", "move", "pew", "startup", "win"] {
         audio.add(item, &format!("{}.wav", item));
     }
-    audio.play(SOUND_STARTUP);
+    audio.play("startup");
 
     // Terminal
     let _terminal = Terminal::start()?;
@@ -102,11 +99,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                     KeyCode::Right => player.move_right(),
                     KeyCode::Char(' ') | KeyCode::Enter => {
                         if player.shoot() {
-                            audio.play(SOUND_SHOT);
+                            audio.play("pew");
                         }
                     }
                     KeyCode::Esc | KeyCode::Char('q') => {
-                        audio.play(SOUND_LOSE);
+                        audio.play("lose");
                         reset_game(&mut in_menu, &mut player, &mut invaders);
                     }
                     _ => {}
@@ -117,11 +114,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         // Updates
         player.update(delta);
         if invaders.update(delta) {
-            audio.play(SOUND_MOVE);
+            audio.play("move");
         }
         let hits: u16 = player.detect_hits(&mut invaders);
         if hits > 0 {
-            audio.play(SOUND_EXPLOSION);
+            audio.play("explode");
             score.add_points(hits);
         }
         // Draw & render
@@ -136,12 +133,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         // Win or lose?
         if invaders.all_killed() {
             if level.increment_level() {
-                audio.play(SOUND_WIN);
+                audio.play("win");
                 break 'gameloop;
             }
             invaders = Invaders::new();
         } else if invaders.reached_bottom() {
-            audio.play(SOUND_LOSE);
+            audio.play("lose");
             reset_game(&mut in_menu, &mut player, &mut invaders);
         }
     }
