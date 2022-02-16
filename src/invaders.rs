@@ -9,8 +9,8 @@ struct Invader {
     pub x: usize,
     pub y: usize,
     points: u16,
-    face1: &'static char,
-    face2: &'static char,
+    face1: char,
+    face2: char,
 }
 
 pub struct Invaders {
@@ -24,7 +24,10 @@ impl Invaders {
     pub fn new() -> Self {
         let mut army = Vec::new();
         let mut faces_list = INVADER_FACES.iter();
-        for y in (INVADERS_FIRST_ROW..=INVADERS_LAST_ROW).step_by(INVADERS_ROW_INTERVAL) {
+        for (y, faces) in (INVADERS_FIRST_ROW..=INVADERS_LAST_ROW)
+            .step_by(INVADERS_ROW_INTERVAL)
+            .zip(INVADER_FACES.iter())
+        {
             // unwrap is safe as the INVADER_FACES is guarded by INVADERS_ROW_COUNT
             let faces = faces_list.next().unwrap();
             for x in (INVADERS_FIRST_COL..INVADERS_LAST_COL).step_by(INVADERS_COL_INTERVAL) {

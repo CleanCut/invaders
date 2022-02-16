@@ -22,8 +22,8 @@ impl Terminal {
 
 impl Drop for Terminal {
     fn drop(&mut self) {
-        self.stdout.execute(Show).unwrap();
-        self.stdout.execute(LeaveAlternateScreen).unwrap();
-        terminal::disable_raw_mode().unwrap_or(());
+        let _ = self.stdout.execute(Show);
+        let _ = self.stdout.execute(LeaveAlternateScreen);
+        let _ = terminal::disable_raw_mode();
     }
 }
