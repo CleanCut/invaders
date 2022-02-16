@@ -23,21 +23,19 @@ pub struct Invaders {
 impl Invaders {
     pub fn new() -> Self {
         let mut army = Vec::new();
-        let mut faces_list = INVADER_FACES.iter();
         for (y, faces) in (INVADERS_FIRST_ROW..=INVADERS_LAST_ROW)
             .step_by(INVADERS_ROW_INTERVAL)
             .zip(INVADER_FACES.iter())
         {
             // unwrap is safe as the INVADER_FACES is guarded by INVADERS_ROW_COUNT
-            let faces = faces_list.next().unwrap();
             for x in (INVADERS_FIRST_COL..INVADERS_LAST_COL).step_by(INVADERS_COL_INTERVAL) {
                 let [face1, face2] = faces;
                 army.push(Invader {
                     x,
                     y,
                     points: 1,
-                    face1,
-                    face2,
+                    face1: faces[0],
+                    face2: faces[1],
                 });
             }
         }
@@ -120,9 +118,9 @@ impl Drawable for Invaders {
                 / self.move_timer.duration.as_secs_f32())
                 > 0.5
             {
-                *invader.face1
+                invader.face1
             } else {
-                *invader.face2
+                invader.face2
             }
         }
     }

@@ -71,7 +71,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         if in_menu {
             // Input handlers for the menu
-            while event::poll(Duration::from_millis(KEYBOARD_POLLING_TIMEOUT_MS))? {
+            while event::poll(Duration::ZERO)? {
                 if let Event::Key(key_event) = event::read()? {
                     match key_event.code {
                         KeyCode::Up => menu.change_option(true),
@@ -95,7 +95,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
 
         // Input handlers for the game
-        while event::poll(Duration::from_millis(KEYBOARD_POLLING_TIMEOUT_MS))? {
+        while event::poll(Duration::ZERO)? {
             if let Event::Key(key_event) = event::read()? {
                 match key_event.code {
                     KeyCode::Left => player.move_left(),
