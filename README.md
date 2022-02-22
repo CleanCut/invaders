@@ -13,8 +13,12 @@ If you want the sound files used in the course video, but don't want to clone th
 - [sounds.zip](https://github.com/CleanCut/invaders/files/6312508/sounds.zip)
 - [sounds.tar.gz](https://github.com/CleanCut/invaders/files/6312511/sounds.tar.gz)
 
+Notice the new path to the sound files used in the course.
+It is now under `audio` > `original`.
+All new contributions can be placed under `audio` > `contributions`.
+
 We have now a new set of instrumental music sound files in MP3 format.
-You can listen to the sounds on [Musescore.com](https://musescore.com/user/9047536/sets/5156900).
+You may listen to the sounds on [Musescore.com](https://musescore.com/user/9047536/sets/5156900).
 
 ### Dependencies on Linux
 
