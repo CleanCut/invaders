@@ -41,7 +41,7 @@ fn reset_game(in_menu: &mut bool, player: &mut Player, invaders: &mut Invaders) 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut audio = Audio::new();
     for item in &["explode", "lose", "move", "pew", "startup", "win"] {
-        audio.add(item, &format!("{}.wav", item));
+        audio.add(item, &format!("audio/original/{}.wav", item));
     }
     audio.play("startup");
 
@@ -91,7 +91,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
             }
             menu.draw(&mut curr_frame);
-            
+
             let _ = render_tx.send(curr_frame);
             thread::sleep(Duration::from_millis(1));
             continue;
