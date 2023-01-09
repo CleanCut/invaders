@@ -38,6 +38,13 @@ sudo yum install -y alsa-lib-devel
 sudo apt install libasound2-dev pkg-config
 ```
 
+## Community Projects
+
+For learning purposes others have started to build other games based on the same structure.
+If you finish a project yourself, open a PR and it may be considered to be linked here as a motivation or reference for others as well.
+
+* [Pong](https://github.com/basilkohler/rusty_pong)
+
 ## Contribution
 
 All contributions are assumed to be dual-licensed under MIT/Apache-2.
