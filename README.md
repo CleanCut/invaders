@@ -43,6 +43,7 @@ sudo apt install libasound2-dev pkg-config
 If you have created a project based off of what you learned from this one, feel free to open a PR and add it to the list below!
 
 * [Pong](https://github.com/basilkohler/rusty_pong)
+* [TETRIS](https://github.com/madchicken/rust-tetris)
 
 ## Contribution
 
