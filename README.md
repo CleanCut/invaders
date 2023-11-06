@@ -37,6 +37,12 @@ sudo yum install -y alsa-lib-devel
 ```bash
 sudo apt install libasound2-dev pkg-config
 ```
+**Arch Linux**
+
+```bash
+sudo pacman -S alsa-lib pkgconf libx11
+```
+You will also need `pipewire-alsa` or `pulseaudio-alsa` depending on the sound server you are using.
 
 ## Community Games!
 
