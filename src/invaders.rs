@@ -2,7 +2,7 @@ use crate::{
     frame::{Drawable, Frame},
     {NUM_COLS, NUM_ROWS},
 };
-use rusty_time::timer::Timer;
+use rusty_time::Timer;
 use std::{cmp::max, time::Duration};
 
 pub struct Invader {
@@ -38,13 +38,13 @@ impl Invaders {
         Self {
             army,
             total_count,
-            move_timer: Timer::from_millis(2000),
+            move_timer: Timer::new(Duration::from_millis(2000)),
             direction: 1,
         }
     }
     pub fn update(&mut self, delta: Duration) -> bool {
-        self.move_timer.update(delta);
-        if self.move_timer.ready {
+        self.move_timer.tick(delta);
+        if self.move_timer.finished() {
             self.move_timer.reset();
             let mut downwards = false;
             if self.direction == -1 {
@@ -61,8 +61,8 @@ impl Invaders {
                 }
             }
             if downwards {
-                let new_duration = max(self.move_timer.duration.as_millis() - 250, 250);
-                self.move_timer = Timer::from_millis(new_duration as u64);
+                let new_duration = max(self.move_timer.duration().as_millis() - 250, 250);
+                self.move_timer.set_duration(Duration::from_millis(new_duration as u64));
                 for invader in self.army.iter_mut() {
                     invader.y += 1;
                 }
@@ -105,8 +105,8 @@ impl Default for Invaders {
 impl Drawable for Invaders {
     fn draw(&self, frame: &mut Frame) {
         for invader in self.army.iter() {
-            frame[invader.x][invader.y] = if (self.move_timer.time_left.as_secs_f32()
-                / self.move_timer.duration.as_secs_f32())
+            frame[invader.x][invader.y] = if (self.move_timer.remaining().as_secs_f32()
+                / self.move_timer.duration().as_secs_f32())
                 > 0.5
             {
                 'x'
