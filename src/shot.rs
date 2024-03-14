@@ -1,4 +1,7 @@
-use crate::frame::{Drawable, Frame};
+use crate::{
+    frame::{Drawable, Frame},
+    NUM_ROWS, PLAYER_CHAR_HEIGHT,
+};
 use rusty_time::Timer;
 use std::time::Duration;
 
@@ -38,6 +41,13 @@ impl Shot {
 
 impl Drawable for Shot {
     fn draw(&self, frame: &mut Frame) {
-        frame[self.x][self.y] = if self.exploding { '*' } else { '|' };
+        let bottom_bound_y = NUM_ROWS - PLAYER_CHAR_HEIGHT;
+        let pos_y = if self.y >= bottom_bound_y {
+            bottom_bound_y
+        } else {
+            self.y
+        };
+
+        frame[self.x][pos_y] = if self.exploding { '*' } else { '|' };
     }
 }
