@@ -57,6 +57,10 @@ impl Player {
         }
         hit_something
     }
+
+    pub fn get_x(&self) -> usize {
+        self.x
+    }
 }
 
 impl Default for Player {

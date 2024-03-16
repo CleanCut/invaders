@@ -94,6 +94,10 @@ impl Invaders {
             0
         }
     }
+
+    pub fn get_direction(&self) -> i32 {
+        self.direction
+    }
 }
 
 impl Default for Invaders {
