@@ -6,10 +6,7 @@ use crossterm::{
 };
 use rusty_audio::Audio;
 use std::{
-    error::Error,
-    sync::mpsc::{self, Receiver},
-    time::{Duration, Instant},
-    {io, thread},
+    error::Error, io, sync::mpsc::{self, Receiver}, thread::{self}, time::{Duration, Instant}
 };
 
 use invaders::{
@@ -20,7 +17,10 @@ use invaders::{
     player::Player,
     render,
     score::Score,
+    rusty_bot::Agent,
 };
+
+const RUSTY_BOT_MAX_GAMES_TO_LEARN: i32 = 50;
 
 fn render_screen(render_rx: Receiver<Frame>) {
     let mut last_frame = frame::new_frame();
@@ -32,8 +32,13 @@ fn render_screen(render_rx: Receiver<Frame>) {
     }
 }
 
-fn reset_game(in_menu: &mut bool, player: &mut Player, invaders: &mut Invaders) {
-    *in_menu = true;
+fn reset_game(in_menu: &mut bool, player: &mut Player, invaders: &mut Invaders, rusty_bot: bool, game_number: i32) {
+    if rusty_bot && game_number < RUSTY_BOT_MAX_GAMES_TO_LEARN {
+        *in_menu = false;
+    } 
+    else {
+        *in_menu = true;
+    }
     *player = Player::new();
     *invaders = Invaders::new();
 }
@@ -65,6 +70,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut menu = Menu::new();
     let mut in_menu = true;
     let mut level = Level::new();
+    let mut rusty_bot: bool = false;
+    let mut agent: Agent = Agent::new(0.05, 0.9);
+    let mut game_number = 1;
+    let mut current_state;
+    let mut action;
+    let mut reward = 0.0;
 
     'gameloop: loop {
         // Per-frame init
@@ -82,7 +93,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                         KeyCode::Char(' ') | KeyCode::Enter => {
                             if menu.selection == 0 {
                                 in_menu = false;
-                            } else {
+                            } else if menu.selection == 1 {
+                                in_menu = false;
+                                rusty_bot = true;
+                            }
+                            else {
                                 break 'gameloop;
                             }
                         }
@@ -98,6 +113,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
 
         // Input handlers for the game
+        current_state = agent.get_state(&mut invaders, &mut player);
+        action = agent.act(current_state, game_number);
         while event::poll(Duration::default())? {
             if let Event::Key(key_event) = event::read()? {
                 match key_event.code {
@@ -110,13 +127,22 @@ fn main() -> Result<(), Box<dyn Error>> {
                     }
                     KeyCode::Esc | KeyCode::Char('q') => {
                         audio.play("lose");
-                        reset_game(&mut in_menu, &mut player, &mut invaders);
+                        reset_game(&mut in_menu, &mut player, &mut invaders, false, 0);
                     }
                     _ => {}
                 }
             }
         }
 
+        if rusty_bot {
+            // If allowed bot to play let bot decide what to play.
+            match action {
+                0 => player.move_left(),
+                1 => player.move_right(),
+                2 => {player.shoot();},
+                _ => {}
+            }
+        }
         // Updates
         player.update(delta);
         if invaders.update(delta) {
@@ -126,6 +152,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         if hits > 0 {
             audio.play("explode");
             score.add_points(hits);
+            // % of hits of remaining army
+            // reward += (hits as f32) / ((1.0 + invaders.army.len() as f32) - hits as f32);
+            reward += 0.05;
+        }
+        else {
+            reward -= 0.01;
         }
         // Draw & render
 
@@ -140,13 +172,20 @@ fn main() -> Result<(), Box<dyn Error>> {
         if invaders.all_killed() {
             if level.increment_level() {
                 audio.play("win");
+                // reward += 1.0;
+                let new_state = agent.get_state(&mut invaders, &mut player);
+                agent.learn(current_state, action, reward, new_state);
                 break 'gameloop;
             }
             invaders = Invaders::new();
         } else if invaders.reached_bottom() {
+            // reward -= 1.0;
             audio.play("lose");
-            reset_game(&mut in_menu, &mut player, &mut invaders);
+            reset_game(&mut in_menu, &mut player, &mut invaders, rusty_bot, game_number);
+            game_number += 1;
         }
+        let new_state = agent.get_state(&mut invaders, &mut player);
+        agent.learn(current_state, action, reward, new_state);
     }
 
     // Cleanup
