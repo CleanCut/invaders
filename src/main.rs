@@ -17,7 +17,7 @@ use invaders::{
     invaders::Invaders,
     level::Level,
     menu::Menu,
-    player::Player,
+    player::{Player, Player2Mode},
     render,
     score::Score,
 };
@@ -32,8 +32,9 @@ fn render_screen(render_rx: Receiver<Frame>) {
     }
 }
 
-fn reset_game(in_menu: &mut bool, to_reset: &mut Vec<&mut dyn Reset>) {
+fn reset_game(in_menu: &mut bool, player2_mode: &mut Player2Mode,  to_reset: &mut Vec<&mut dyn Reset>) {
     *in_menu = true;
+    *player2_mode = Player2Mode::Enabled(false);
     for elem in to_reset {
         elem.reset();
     }
@@ -67,7 +68,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut menu = Menu::new();
     let mut in_menu = true;
     let mut level = Level::new();
-    let mut player2_mode = false;
+    let mut player2_mode = Player2Mode::Enabled(false);
 
     'gameloop: loop {
         // Per-frame init
@@ -88,7 +89,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                             }
                             else if menu.selection == 1 {
                                 in_menu = false;
-                                player2_mode = true;
+                                player2_mode = Player2Mode::Enabled(true);
                             } else {
                                 break 'gameloop;
                             }
@@ -114,19 +115,22 @@ fn main() -> Result<(), Box<dyn Error>> {
                         if player.shoot() {
                             audio.play("pew");
                         }
-                    }
+                    },
                     KeyCode::Char('a') => player2.move_left(),
                     KeyCode::Char('d') => player2.move_right(),
                     KeyCode::Char('w') => {
                         if player2.shoot() {
                             audio.play("pew");
                         }
-                    }
+                    },
                     KeyCode::Esc | KeyCode::Char('q') => {
                         audio.play("lose");
                         let mut to_reset: Vec<&mut dyn Reset> = vec![&mut player, &mut player2, &mut invaders, &mut score, &mut level];
-                        reset_game(&mut in_menu, &mut to_reset);
-                    }
+                        reset_game(&mut in_menu, &mut player2_mode, &mut to_reset);
+                    },
+                    KeyCode::Char('e') => {
+                        player2_mode = Player2Mode::Enabled(true);
+                    },
                     _ => {}
                 }
             }
@@ -134,7 +138,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         // Updates
         player.update(delta);
-        if player2_mode { player2.update(delta); }
+        if player2_mode == Player2Mode::Enabled(true) { player2.update(delta); }
 
         if invaders.update(delta) {
             audio.play("move");
@@ -147,8 +151,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         // Draw & render
 
-        let mut drawables: Vec<&dyn Drawable> = vec![&player, &invaders, &score, &level];
-        if player2_mode { drawables.push(&player2); }
+        let mut drawables: Vec<&dyn Drawable> = vec![&player, &invaders, &score, &level, &player2_mode];
+        if player2_mode == Player2Mode::Enabled(true) {
+            drawables.push(&player2);
+        }
         for drawable in drawables {
             drawable.draw(&mut curr_frame);
         }
@@ -165,7 +171,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         } else if invaders.reached_bottom() {
             audio.play("lose");
             let mut to_reset: Vec<&mut dyn Reset> = vec![&mut player, &mut player2, &mut invaders, &mut score, &mut level];
-            reset_game(&mut in_menu, &mut to_reset);
+            reset_game(&mut in_menu, &mut player2_mode, &mut to_reset);
         }
     }
 

@@ -81,3 +81,22 @@ impl Drawable for Player {
         }
     }
 }
+#[derive(PartialEq, Debug)]
+pub enum Player2Mode {
+    Enabled(bool),
+}
+
+impl Drawable for Player2Mode {
+    fn draw(&self, frame: &mut Frame) {
+        // format our player2 string
+        if *self == Player2Mode::Enabled(false) {
+            let formatted = format!("P2: PRESS E");
+
+            // iterate over all characters
+            for (i, c) in formatted.chars().enumerate() {
+                // put them in the first row
+                frame[i + 23][0] = c;
+            }
+        }
+    }
+}

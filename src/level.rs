@@ -39,7 +39,7 @@ impl Drawable for Level {
         // iterate over all characters
         for (i, c) in formatted.chars().enumerate() {
             // put them in the first row
-            frame[i + 20][0] = c;
+            frame[i + 13][0] = c;
         }
     }
 }
