@@ -1,4 +1,4 @@
-use crate::frame::{Drawable, Frame};
+use crate::frame::{Drawable, Frame, Reset};
 
 const MAX_LEVEL: u8 = 3;
 
@@ -22,6 +22,12 @@ impl Level {
 impl Default for Level {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl Reset for Level {
+    fn reset(&mut self) {
+        *self = Level::default();
     }
 }
 

@@ -9,3 +9,7 @@ pub fn new_frame() -> Frame {
 pub trait Drawable {
     fn draw(&self, frame: &mut Frame);
 }
+
+pub trait Reset {
+    fn reset(&mut self);
+}

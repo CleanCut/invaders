@@ -13,7 +13,7 @@ use std::{
 };
 
 use invaders::{
-    frame::{self, new_frame, Drawable, Frame},
+    frame::{new_frame, Drawable, Reset, Frame},
     invaders::Invaders,
     level::Level,
     menu::Menu,
@@ -23,7 +23,7 @@ use invaders::{
 };
 
 fn render_screen(render_rx: Receiver<Frame>) {
-    let mut last_frame = frame::new_frame();
+    let mut last_frame = new_frame();
     let mut stdout = io::stdout();
     render::render(&mut stdout, &last_frame, &last_frame, true);
     while let Ok(curr_frame) = render_rx.recv() {
@@ -32,10 +32,11 @@ fn render_screen(render_rx: Receiver<Frame>) {
     }
 }
 
-fn reset_game(in_menu: &mut bool, player: &mut Player, invaders: &mut Invaders) {
+fn reset_game(in_menu: &mut bool, to_reset: &mut Vec<&mut dyn Reset>) {
     *in_menu = true;
-    *player = Player::new();
-    *invaders = Invaders::new();
+    for elem in to_reset {
+        elem.reset();
+    }
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -58,13 +59,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     });
 
     // Game loop
-    let mut player = Player::new();
+    let mut player = Player::new('A');
+    let mut player2 = Player::new('Q');
     let mut instant = Instant::now();
     let mut invaders = Invaders::new();
     let mut score = Score::new();
     let mut menu = Menu::new();
     let mut in_menu = true;
     let mut level = Level::new();
+    let mut player2_mode = false;
 
     'gameloop: loop {
         // Per-frame init
@@ -82,6 +85,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                         KeyCode::Char(' ') | KeyCode::Enter => {
                             if menu.selection == 0 {
                                 in_menu = false;
+                            }
+                            else if menu.selection == 1 {
+                                in_menu = false;
+                                player2_mode = true;
                             } else {
                                 break 'gameloop;
                             }
@@ -108,9 +115,17 @@ fn main() -> Result<(), Box<dyn Error>> {
                             audio.play("pew");
                         }
                     }
+                    KeyCode::Char('a') => player2.move_left(),
+                    KeyCode::Char('d') => player2.move_right(),
+                    KeyCode::Char('w') => {
+                        if player2.shoot() {
+                            audio.play("pew");
+                        }
+                    }
                     KeyCode::Esc | KeyCode::Char('q') => {
                         audio.play("lose");
-                        reset_game(&mut in_menu, &mut player, &mut invaders);
+                        let mut to_reset: Vec<&mut dyn Reset> = vec![&mut player, &mut player2, &mut invaders, &mut score, &mut level];
+                        reset_game(&mut in_menu, &mut to_reset);
                     }
                     _ => {}
                 }
@@ -119,17 +134,21 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         // Updates
         player.update(delta);
+        if player2_mode { player2.update(delta); }
+
         if invaders.update(delta) {
             audio.play("move");
         }
-        let hits: u16 = player.detect_hits(&mut invaders);
+        let mut hits: u16 = player.detect_hits(&mut invaders);
+        hits += player2.detect_hits(&mut invaders);
         if hits > 0 {
             audio.play("explode");
             score.add_points(hits);
         }
         // Draw & render
 
-        let drawables: Vec<&dyn Drawable> = vec![&player, &invaders, &score, &level];
+        let mut drawables: Vec<&dyn Drawable> = vec![&player, &invaders, &score, &level];
+        if player2_mode { drawables.push(&player2); }
         for drawable in drawables {
             drawable.draw(&mut curr_frame);
         }
@@ -145,7 +164,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             invaders = Invaders::new();
         } else if invaders.reached_bottom() {
             audio.play("lose");
-            reset_game(&mut in_menu, &mut player, &mut invaders);
+            let mut to_reset: Vec<&mut dyn Reset> = vec![&mut player, &mut player2, &mut invaders, &mut score, &mut level];
+            reset_game(&mut in_menu, &mut to_reset);
         }
     }
 
