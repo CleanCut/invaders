@@ -8,7 +8,9 @@ pub struct Menu {
 impl Menu {
     pub fn new() -> Self {
         Self {
-            options: vec![String::from("New game"), String::from("Exit")],
+            options: vec![String::from("New game"),
+                          String::from("2 players"),
+                          String::from("Exit")],
             selection: 0,
         }
     }

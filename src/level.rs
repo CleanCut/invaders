@@ -1,4 +1,4 @@
-use crate::frame::{Drawable, Frame};
+use crate::frame::{Drawable, Frame, Reset};
 
 const MAX_LEVEL: u8 = 3;
 
@@ -25,6 +25,12 @@ impl Default for Level {
     }
 }
 
+impl Reset for Level {
+    fn reset(&mut self) {
+        *self = Level::default();
+    }
+}
+
 impl Drawable for Level {
     fn draw(&self, frame: &mut Frame) {
         // format our level string
@@ -33,7 +39,7 @@ impl Drawable for Level {
         // iterate over all characters
         for (i, c) in formatted.chars().enumerate() {
             // put them in the first row
-            frame[i + 20][0] = c;
+            frame[i + 13][0] = c;
         }
     }
 }

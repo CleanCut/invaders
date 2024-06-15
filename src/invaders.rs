@@ -4,6 +4,7 @@ use crate::{
 };
 use rusty_time::Timer;
 use std::{cmp::max, time::Duration};
+use crate::frame::Reset;
 
 pub struct Invader {
     pub x: usize,
@@ -99,6 +100,12 @@ impl Invaders {
 impl Default for Invaders {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl Reset for Invaders {
+    fn reset(&mut self) {
+        *self = Invaders::new();
     }
 }
 

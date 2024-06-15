@@ -1,5 +1,5 @@
 use crate::{
-    frame::{Drawable, Frame},
+    frame::{Drawable, Reset, Frame},
     invaders::Invaders,
     shot::Shot,
     {NUM_COLS, NUM_ROWS},
@@ -10,14 +10,16 @@ pub struct Player {
     x: usize,
     y: usize,
     shots: Vec<Shot>,
+    view: char,
 }
 
 impl Player {
-    pub fn new() -> Self {
+    pub fn new(view: char) -> Self {
         Self {
             x: NUM_COLS / 2,
             y: NUM_ROWS - 1,
             shots: Vec::new(),
+            view: view
         }
     }
     pub fn move_left(&mut self) {
@@ -61,15 +63,40 @@ impl Player {
 
 impl Default for Player {
     fn default() -> Self {
-        Self::new()
+        Self::new('A')
+    }
+}
+
+impl Reset for Player {
+    fn reset(&mut self) {
+        *self = Player::new(self.view);
     }
 }
 
 impl Drawable for Player {
     fn draw(&self, frame: &mut Frame) {
-        frame[self.x][self.y] = 'A';
+        frame[self.x][self.y] = self.view;
         for shot in self.shots.iter() {
             shot.draw(frame);
+        }
+    }
+}
+#[derive(PartialEq, Debug)]
+pub enum Player2Mode {
+    Enabled(bool),
+}
+
+impl Drawable for Player2Mode {
+    fn draw(&self, frame: &mut Frame) {
+        // format our player2 string
+        if *self == Player2Mode::Enabled(false) {
+            let formatted = format!("P2: PRESS E");
+
+            // iterate over all characters
+            for (i, c) in formatted.chars().enumerate() {
+                // put them in the first row
+                frame[i + 23][0] = c;
+            }
         }
     }
 }

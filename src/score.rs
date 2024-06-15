@@ -1,4 +1,4 @@
-use crate::frame::{Drawable, Frame};
+use crate::frame::{Drawable, Frame, Reset};
 
 #[derive(Default)]
 pub struct Score {
@@ -12,6 +12,12 @@ impl Score {
 
     pub fn add_points(&mut self, amount: u16) {
         self.count += amount;
+    }
+}
+
+impl Reset for Score {
+    fn reset(&mut self) {
+        *self = Score::default();
     }
 }
 
