@@ -51,6 +51,7 @@ Were you inspired to make your own terminal-based game? Open a PR to add it to t
 * [Pong](https://github.com/basilkohler/rusty_pong)
 * [TETRIS](https://github.com/madchicken/rust-tetris)
 * [Columns](https://github.com/Rendez/rust_columns)
+* [Q-Agent Driven Invaders](https://github.com/indiVar0508/Q-agent-driven-invaders/tree/q_agent)
 
 ## Contribution
 
