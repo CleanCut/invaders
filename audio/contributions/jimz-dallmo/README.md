@@ -1,6 +1,6 @@
 # overview
 
-all audio files are edited from the downloads from royalty-free audio clips in [pixabay][link-0].
+all audio files are edited from the royalty-free audio clips in [pixabay][link-0].
 
 # the list of audio and the corresponding link in pixabay
 1. [explode - bomb-explosion-type-2-235813][link-1]
